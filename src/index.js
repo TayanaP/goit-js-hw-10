@@ -18,16 +18,14 @@ function onInputSearch(event) {
   let searchQuery = event.target.value.trim();
   if (searchQuery) {
     return fetchCountries(searchQuery)
-      .then(data => {
-        choseMarkup(data);
-      })
-      .catch(error => {
-        Notify.failure('Oops, there is no country with that name');
-      });
+      .then(renderCountries)
+      .catch(onFetchError);
   }
+  countryListEl.innerHTML = '';
+  countryInfoEl.innerHTML = '';
 }
 
-function choseMarkup(countryArray) {
+function renderCountries(countryArray) {
   if (countryArray.length === 1) {
     countryListEl.innerHTML = '';
     return markupCountryCard(countryArray);
@@ -36,10 +34,13 @@ function choseMarkup(countryArray) {
     countryInfoEl.innerHTML = '';
     return markupCountryItem(countryArray);
   }
-
   return Notify.info(
     'Too many matches found. Please enter a more specific name.'
   );
+}
+
+function onFetchError(error) {
+  Notify.failure('Oops, there is no country with that name');
 }
 
 function markupCountryItem(data) {
@@ -58,6 +59,7 @@ function markupCountryItem(data) {
 function markupCountryCard(data) {
   const markup = data
     .map(element => {
+      const values = Object.values;
       return `<h1>
        <img src="${element.flags.svg}" alt="${
         element.name.official
